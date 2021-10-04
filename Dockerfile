@@ -1,10 +1,12 @@
-FROM php:8.0-fpm
+FROM composer AS publish
 
-# Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
+WORKDIR /app
 
-# Set working directory
-WORKDIR /var/www
+COPY . .
+
+RUN composer install
+
+FROM php:8.0-fpm AS final
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,15 +16,15 @@ RUN apt-get update && apt-get install -y \
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
 # Add user for laravel application
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
 
+# Set working directory
+WORKDIR /var/www
+
 # Copy existing application directory contents
-COPY . /var/www
+COPY --from=publish /app .
 
 # Copy existing application directory permissions
 COPY --chown=www:www . /var/www

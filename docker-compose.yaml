@@ -1,32 +1,22 @@
 version: '3'
 services:
 
-  #PHP Service
+  # PHP Service
   app:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
+    command:  bash -c "php artisan migrate && php -S app:8000 -t public"
     working_dir: /var/www
-    volumes:
-      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mariadb
     networks:
       - app-network
 
-  #Nginx Service
-  webserver:
-    image: nginx:alpine
-    restart: unless-stopped
-    volumes:
-      - ./:/var/www
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
-    networks:
-      - app-network
-
-  #Varnish Service
+  # Varnish Service
   varnish:
     image: varnish:6.0.8
     restart: unless-stopped
@@ -37,24 +27,20 @@ services:
     networks:
       - app-network
 
-  #MySQL Service
-  db:
-    image: mysql:5.7.22
+  # MySQL Service
+  mariadb:
+    image: mariadb:latest
     restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
-    volumes:
-      - dbdata:/var/lib/mysql/
-      - ./mysql/my.cnf:/etc/mysql/my.cnf
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
     networks:
       - app-network
 
-#Docker Networks
 networks:
   app-network:
     driver: bridge

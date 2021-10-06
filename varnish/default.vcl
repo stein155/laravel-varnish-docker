@@ -1,5 +1,5 @@
 vcl 4.0;
 
 backend default {
-  .host = "webserver:80";
+  .host = "app:8000";
 }

@@ -26,7 +26,7 @@ class MessageController extends Controller
         echo "<a href=\"create\">Random bericht toevoegen</a><br>";
 
         foreach($messages as $message) {
-            $date = Carbon::parse($message->created_at)->diffForHumans();
+            $date = Carbon::parse($message->created_at);
             echo "Toegevoegd: $date<br>";
             echo "Bericht:    $message->text <br><hr>";
         }

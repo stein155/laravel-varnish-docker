@@ -1,20 +1,25 @@
 version: '3'
 services:
 
-  # PHP Service
+  # Service 1 - Slaat inkomend bericht op in Database
   service1:
     build: service1/
     restart: unless-stopped
     command:  bash -c "php artisan migrate && php -S service1:80 -t public"
     working_dir: /var/www
+    volumes:
+      - ./.env:/var/www/.env
     depends_on:
       - mariadb
 
+  # Service - Verstuurd willekeurig bericht naar service 1 + haalt alle berichten op uit service 1
   service2:
     build: service2/
     restart: unless-stopped
     command:  bash -c "php -S service2:80 -t public"
     working_dir: /var/www
+    volumes:
+      - ./.env:/var/www/.env
     depends_on:
       - service1
 

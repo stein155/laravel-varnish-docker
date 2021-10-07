@@ -2,17 +2,25 @@ version: '3'
 services:
 
   # PHP Service
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  service1:
+    build: service1/
     restart: unless-stopped
-    command:  bash -c "php artisan migrate && php -S app:8000 -t public"
+    command:  bash -c "php artisan migrate && php -S service1:80 -t public"
+    working_dir: /var/www
+    depends_on:
+      - mariadb
+    networks:
+      - app-network
+
+  service2:
+    build: service2/
+    restart: unless-stopped
+    command:  bash -c "php -S service2:8000 -t public"
     working_dir: /var/www
     ports:
       - "8000:8000"
     depends_on:
-      - mariadb
+      - service1
     networks:
       - app-network
 

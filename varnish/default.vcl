@@ -1,5 +1,5 @@
 vcl 4.0;
 
 backend default {
-  .host = "app:8000";
+  .host = "service2:8000";
 }
